@@ -1,0 +1,39 @@
+version: '3.7'
+services:
+  flask-app:
+    build: ./flask-app
+    image: kirankalsi/flask-app:latest
+    ports:
+    - target: 5000
+      published: 5000
+      protocol: tcp
+    depends_on:
+    - "mysql"
+  nginx:
+    image: nginx:latest
+    ports:
+    - target: 80
+      published: 80
+      protocol: tcp
+    volumes:
+    - type: bind
+      source: ./nginx/nginx.conf
+      target: /etc/nginx/nginx.conf
+    depends_on:
+    - "flask-app"
+  mysql:
+    build: ./db
+    image: kirankalsi/db:latest
+    ports:
+    - target: 3303
+      published: 3303
+      protocol: tcp
+    environment:
+      MYSQL_ROOT_PASSWORD: ${PASSWORD}
+      PASSWORD: something
+    volumes:
+    - type: volume
+      source: db_users
+      target: /var/lib/mysql
+volumes:
+ db_users:
